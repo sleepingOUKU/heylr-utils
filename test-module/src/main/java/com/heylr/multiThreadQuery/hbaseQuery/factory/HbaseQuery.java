@@ -41,7 +41,7 @@ public class HbaseQuery extends AbstractBaseQuery<String,User> {
             user.setTimeFlag(new Date());
             userList.add(user);
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }catch (Exception e){
                 e.printStackTrace();
             }

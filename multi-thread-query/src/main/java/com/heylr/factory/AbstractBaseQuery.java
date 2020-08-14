@@ -1,43 +1,75 @@
 package com.heylr.factory;
 
 import com.heylr.base.MultiQueryInterface;
+import com.heylr.concurrent.NamedThreadFactory;
+import com.heylr.config.ConfigLoader;
 import com.heylr.entity.Tuples;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * 抽象基础分线程查询类
- * @author zhangyunlin
+ *
+ * @author heylr
+ * @date 2020-8-12 14:38:40
  */
-public abstract class AbstractBaseQuery<QueryEntity,ResultEntity> implements MultiQueryInterface<QueryEntity,ResultEntity> {
+public abstract class AbstractBaseQuery<QueryEntity, ResultEntity> implements MultiQueryInterface<QueryEntity, ResultEntity> {
+
+    private static final String QUERY_THREAD_NUM = "queryThread.num";
+
+
+    private static Properties properties = ConfigLoader.getProperties();
+    private static ScheduledThreadPoolExecutor queryPool = null;
+
+    static {
+        queryPool = new ScheduledThreadPoolExecutor(Integer.parseInt(properties.getProperty(QUERY_THREAD_NUM)), new NamedThreadFactory(
+                "multi-query", true));
+    }
+
+
+    /**
+     * 默认方法，不进行分割，直接返回由startKey与endKey组成的Tuples
+     * @param startKey
+     * @param endKey
+     * @return
+     */
+    @Override
+    public List<Tuples<QueryEntity>> splitKeysList(QueryEntity startKey, QueryEntity endKey) {
+        Tuples<QueryEntity> tuples = new Tuples<>(startKey,endKey);
+        return new ArrayList<Tuples<QueryEntity>>(){{add(tuples);}};
+    }
 
     @Override
-    public List<List<ResultEntity>> splitQuery(List<Tuples<QueryEntity>> queryList){
+    public List<List<ResultEntity>> splitQuery(List<Tuples<QueryEntity>> queryList) {
 
         List<List<ResultEntity>> result = new ArrayList<>();
 
-        if(queryList.isEmpty()){
+        if (queryList.isEmpty()) {
             return result;
         }
         CountDownLatch threadCount = new CountDownLatch(queryList.size());
 
         //新建查询线程
-        for(int i = 0;i< queryList.size();i++){
+        for (int i = 0; i < queryList.size(); i++) {
             int tempI = i;
-            new Thread(()->{
+            queryPool.execute(new Thread(() -> {
                 try {
+                    System.out.println("currentThread start:" + Thread.currentThread().getName());
                     List<ResultEntity> splitResult = query(queryList.get(tempI));
-                    synchronized (result){
+                    synchronized (result) {
                         result.add(splitResult);
                     }
-                }catch (Exception e){
+                    System.out.println("currentThread end:" + Thread.currentThread().getName());
+                } catch (Exception e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     threadCount.countDown();
                 }
-            }).start();
+            }));
         }
 
         try {
@@ -51,6 +83,7 @@ public abstract class AbstractBaseQuery<QueryEntity,ResultEntity> implements Mul
 
     /**
      * baseMergeResult 将所有查询出来的数据进行统计，只是按照顺序组合到同一list中，
+     *
      * @param mergeList
      * @return
      */
@@ -58,7 +91,7 @@ public abstract class AbstractBaseQuery<QueryEntity,ResultEntity> implements Mul
     public List<ResultEntity> mergeResult(List<List<ResultEntity>> mergeList) {
         List<ResultEntity> result = new ArrayList<>();
 
-        for(List list: mergeList){
+        for (List list : mergeList) {
             result.addAll(list);
         }
 
@@ -66,7 +99,7 @@ public abstract class AbstractBaseQuery<QueryEntity,ResultEntity> implements Mul
     }
 
     @Override
-    public List<ResultEntity> splitQuery(Tuples<QueryEntity> tuples){
+    public List<ResultEntity> splitQuery(Tuples<QueryEntity> tuples) {
         List<Tuples<QueryEntity>> queryList = splitKeysList(tuples.getFirst(), tuples.getSecond());
         List<List<ResultEntity>> result = splitQuery(queryList);
 
