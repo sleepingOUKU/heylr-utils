@@ -2,6 +2,7 @@ package com.heylr.factory;
 
 import com.heylr.base.MultiQueryInterface;
 import com.heylr.concurrent.NamedThreadFactory;
+import com.heylr.config.BaseConfig;
 import com.heylr.config.ConfigLoader;
 import com.heylr.entity.Tuples;
 
@@ -19,16 +20,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public abstract class AbstractBaseQuery<QueryEntity, ResultEntity> implements MultiQueryInterface<QueryEntity, ResultEntity> {
 
-    private static final String QUERY_THREAD_NUM = "queryThread.num";
-
-
-    private static Properties properties = ConfigLoader.getProperties();
-    private static ScheduledThreadPoolExecutor queryPool = null;
-
-    static {
-        queryPool = new ScheduledThreadPoolExecutor(Integer.parseInt(properties.getProperty(QUERY_THREAD_NUM)), new NamedThreadFactory(
+    private static ScheduledThreadPoolExecutor queryPool = new ScheduledThreadPoolExecutor(BaseConfig.getQueryThreadNum(), new NamedThreadFactory(
                 "multi-query", true));
-    }
 
 
     /**
