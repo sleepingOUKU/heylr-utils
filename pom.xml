@@ -12,6 +12,8 @@
         <module>multi-thread-query</module>
         <module>log-split-print</module>
         <module>test-module</module>
+        <module>sys-info-sentinel</module>
+        <module>config-loader</module>
     </modules>
 
 
