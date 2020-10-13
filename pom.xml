@@ -14,6 +14,7 @@
         <module>test-module</module>
         <module>sys-info-sentinel</module>
         <module>config-loader</module>
+        <module>spi-loader</module>
     </modules>
 
 

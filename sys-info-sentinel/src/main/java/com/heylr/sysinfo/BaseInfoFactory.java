@@ -83,22 +83,22 @@ public class BaseInfoFactory {
     }
 
     /**
-     * 获取内存大小(M)单位
+     * 获取内存大小(b)单位
      *
      * @return
      */
     public static long getTotalMemory() {
         OperatingSystemMXBean osmxb = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-        return osmxb.getTotalPhysicalMemorySize() / (1024 * 1024);
+        return osmxb.getTotalPhysicalMemorySize();
     }
 
     /**
-     * 获取剩余内存大小（M)单位
+     * 获取剩余内存大小（b)单位
      *
      * @return
      */
     public static long getFreeMemory() {
         OperatingSystemMXBean osmxb = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-        return osmxb.getFreePhysicalMemorySize() / (1024 * 1024);
+        return osmxb.getFreePhysicalMemorySize();
     }
 }
