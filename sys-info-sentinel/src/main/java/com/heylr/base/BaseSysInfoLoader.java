@@ -30,7 +30,6 @@ public class BaseSysInfoLoader {
         //判断类型
         if(osEnum.equals(OsEnum.WIN_TYPE)){
             //windows type
-            cpuType = WinSysInfoFactory.getCPUType();
         }else if(osEnum.equals(OsEnum.LINUX_TYPE)){
             //linux type
         }else if(osEnum.equals(OsEnum.MAC_TYPE)){

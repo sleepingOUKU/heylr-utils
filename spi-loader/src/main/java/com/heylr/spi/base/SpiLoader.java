@@ -84,6 +84,8 @@ public class SpiLoader<T> {
 
 
     private void initSelector() {
+
+        //初始化类选择器，如Spi为空，则采用默认选择器
         Spi ano = spiInterfaceType.getAnnotation(Spi.class);
         if (ano == null) {
             currentSelector = initSelector(DefaultSelector.class);
@@ -91,7 +93,7 @@ public class SpiLoader<T> {
             currentSelector = initSelector(ano.selector());
         }
 
-
+        //初始化方法选择器，由于使用method.name作为key，因此无法采用
         Method[] methods = this.spiInterfaceType.getMethods();
         currentMethodSelector = new ConcurrentHashMap<>();
         SelectorWrapper temp;

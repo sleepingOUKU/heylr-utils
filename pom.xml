@@ -15,6 +15,7 @@
         <module>sys-info-sentinel</module>
         <module>config-loader</module>
         <module>spi-loader</module>
+        <module>base-log-print</module>
     </modules>
 
 

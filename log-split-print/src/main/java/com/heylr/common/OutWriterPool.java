@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 定义写文件输出流池,用于存放输出流
@@ -15,7 +16,7 @@ import java.util.Set;
  */
 public class OutWriterPool {
 
-    private static Map<String, OutWrite> writePool = new HashMap<String, OutWrite>();
+    private static Map<String, OutWrite> writePool = new ConcurrentHashMap<>();
 
     /**
      * 通过key获取OutWrite
